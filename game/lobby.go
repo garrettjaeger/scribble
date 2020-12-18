@@ -3,6 +3,7 @@ package game
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/scribble-rs/scribble.rs/nodeid"
 	"html"
 	"log"
 	"math"
@@ -497,7 +498,7 @@ func endGame(lobby *Lobby) {
 	WritePublicSystemMessage(lobby, "Game over. Type !start again to start a new round.")
 
 	fmt.Println("Ending game")
-	go UpdatePlayerScores(lobby.Players)
+	go UpdatePlayerScores(lobby.Players, nodeid.NodeID)
 }
 
 // selectNextDrawer returns the next person that's supposed to be drawing, but

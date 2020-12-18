@@ -6,6 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"html/template"
+	"sort"
 	"strings"
 	"time"
 )
@@ -32,11 +34,18 @@ type scoreEntry struct {
 	Score int
 }
 
-func PrintScore() string{
+func PrintScore() template.HTML{
+	var cp = make([]scoreEntry, len(scoreBoard))
+	copy(cp,scoreBoard)
+
+	sort.SliceStable(cp, func(i, j int) bool {
+		return cp[i].Score > cp[j].Score
+	})
+
 	builder := strings.Builder{}
-	for k, v := range scoreBoard {
-		builder.WriteString(fmt.Sprintf("%s -> %d <br />\n\r", k, v)) }
-	return builder.String()
+	for _, v := range cp {
+		builder.WriteString(fmt.Sprintf("%s -> %d <br />\n\r", v.Name, v.Score)) }
+	return template.HTML(builder.String())
 }
 
 func keepSyncScore() error {
@@ -49,7 +58,7 @@ func keepSyncScore() error {
 			fmt.Println("end")
 			return err
 		}
-		time.Sleep(time.Duration(60) * time.Second)
+		time.Sleep(time.Duration(5) * time.Second)
 	}
 }
 
@@ -79,9 +88,9 @@ func syncScoreBoard() error {
 	return nil
 }
 
-func UpdatePlayerScores(players []*Player) error{
+func UpdatePlayerScores(players []*Player, nodeId string) error{
 	fmt.Println("lock result:")
-	fmt.Println(lockDDBMutex())
+	fmt.Println(lockDDBMutex(nodeId))
 	fmt.Println("end")
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-west-2")},
@@ -135,5 +144,5 @@ func UpdatePlayerScores(players []*Player) error{
 			return err
 		}
 	}
-	return UnlockDDBMutex()
+	return UnlockDDBMutex(nodeId)
 }

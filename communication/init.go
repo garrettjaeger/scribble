@@ -12,7 +12,8 @@ var (
 	errorPage       *template.Template
 	lobbyCreatePage *template.Template
 	lobbyPage       *template.Template
-	rankPage	*template.Template
+	rankPage        *template.Template
+	scoreIncrementPage *template.Template
 )
 
 func findStringFromBox(box *packr.Box, name string) string {
@@ -66,8 +67,24 @@ func init() {
 	if parseError != nil {
 		panic(parseError)
 	}
-	// TODO Add rank page
 
+	rankPage, parseError = template.New("rank_board.html").Parse(findStringFromBox(templates, "rank_board.html"))
+	if parseError != nil {
+		panic(parseError)
+	}
+	rankPage, parseError = rankPage.New("footer.html").Parse(findStringFromBox(templates, "footer.html"))
+	if parseError != nil {
+		panic(parseError)
+	}
+
+	scoreIncrementPage, parseError = template.New("increments_score.html").Parse(findStringFromBox(templates, "increments_score.html"))
+	if parseError != nil {
+		panic(parseError)
+	}
+	scoreIncrementPage, parseError = scoreIncrementPage.New("footer.html").Parse(findStringFromBox(templates, "footer.html"))
+	if parseError != nil {
+		panic(parseError)
+	}
 	game.InitializeRank()
 
 	setupRoutes()
@@ -89,4 +106,5 @@ func setupRoutes() {
 	http.HandleFunc("/v1/lobby", createLobby)
 	http.HandleFunc("/v1/lobby/player", enterLobby)
 	http.HandleFunc("/ranks", showRanks)
+	http.HandleFunc("/bump", increaseScore)
 }

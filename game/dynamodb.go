@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/google/uuid"
 	"math/rand"
 	"time"
 )
@@ -23,11 +22,10 @@ type Score struct {
 }
 
 var (
-	nodeId = uuid.New().String()
 	mutexTableName = "scribbleScoreMutex"
 )
 
-func lockDDBMutex() error{
+func lockDDBMutex(nodeId string) error{
 	fmt.Println("locking")
 	timeStamp := time.Now().Unix()
 	counter := 1
@@ -54,8 +52,10 @@ func lockDDBMutex() error{
 		fmt.Println(items)
 		fmt.Println("end")
 		existingMutex := DDBMutex{}
-		if items != nil && len(items) > 1{
+		if items != nil && len(items) > 0 {
 			err = dynamodbattribute.UnmarshalMap(items[0], &existingMutex)
+			fmt.Println("err")
+			fmt.Println(err)
 		}
 		// no items or mutex expired after 5 minutes
 		if items == nil || time.Now().Unix() - existingMutex.TimeStamp > 300 {
@@ -80,12 +80,14 @@ func lockDDBMutex() error{
 		if existingMutex.NodeID == nodeId {
 			return nil
 		}
+		fmt.Println("existing mutex node id: " + existingMutex.NodeID)
+		fmt.Println("current nodeID: " + nodeId)
 		time.Sleep(time.Duration(rand.Intn(3)) * time.Second)
 	}
 	return errors.New("Timeout getting ddb mutex")
 }
 
-func UnlockDDBMutex() error {
+func UnlockDDBMutex(nodeId string) error {
 	fmt.Println("unlocking")
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-west-2")},
