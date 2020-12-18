@@ -70,7 +70,6 @@ func init() {
 
 	game.InitializeRank()
 
-
 	setupRoutes()
 }
 
