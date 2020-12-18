@@ -1,6 +1,7 @@
 package communication
 
 import (
+	"github.com/scribble-rs/scribble.rs/game"
 	"html/template"
 	"net/http"
 
@@ -11,6 +12,7 @@ var (
 	errorPage       *template.Template
 	lobbyCreatePage *template.Template
 	lobbyPage       *template.Template
+	rankPage	*template.Template
 )
 
 func findStringFromBox(box *packr.Box, name string) string {
@@ -56,6 +58,19 @@ func init() {
 		panic(parseError)
 	}
 
+	rankPage, parseError = template.New("rank_board.html").Parse(findStringFromBox(templates, "rank_board.html"))
+	if parseError != nil {
+		panic(parseError)
+	}
+	rankPage, parseError = rankPage.New("footer.html").Parse(findStringFromBox(templates, "footer.html"))
+	if parseError != nil {
+		panic(parseError)
+	}
+	// TODO Add rank page
+
+	game.InitializeRank()
+
+
 	setupRoutes()
 }
 
@@ -74,4 +89,5 @@ func setupRoutes() {
 	//backwards compatibility as far as possible.
 	http.HandleFunc("/v1/lobby", createLobby)
 	http.HandleFunc("/v1/lobby/player", enterLobby)
+	http.HandleFunc("/ranks", showRanks)
 }

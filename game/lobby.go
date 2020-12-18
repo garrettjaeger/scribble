@@ -155,7 +155,7 @@ func HandleEvent(raw []byte, received *JSEvent, lobby *Lobby, player *Player) er
 				otherPlayer.Score = 0
 				otherPlayer.LastScore = 0
 				//Since nobody has any points in the beginning, everyone has practically
-				//the same rank, therefore y'll winners for now.
+				//the same rankMap, therefore y'll winners for now.
 				otherPlayer.Rank = 1
 			}
 
@@ -495,6 +495,8 @@ func endGame(lobby *Lobby) {
 	triggerPlayersUpdate(lobby)
 
 	WritePublicSystemMessage(lobby, "Game over. Type !start again to start a new round.")
+
+	UpdatePlayerRanks(lobby.Players)
 }
 
 // selectNextDrawer returns the next person that's supposed to be drawing, but
@@ -565,7 +567,7 @@ type NextTurn struct {
 	RoundEndTime int       `json:"roundEndTime"`
 }
 
-// recalculateRanks will assign each player his respective rank in the lobby
+// recalculateRanks will assign each player his respective rankMap in the lobby
 // according to everyones current score. This will not trigger any events.
 func recalculateRanks(lobby *Lobby) {
 	for _, a := range lobby.Players {

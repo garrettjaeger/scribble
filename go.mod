@@ -1,6 +1,6 @@
 module github.com/scribble-rs/scribble.rs
 
-go 1.12
+go 1.15
 
 require (
 	github.com/Bios-Marcel/cmdp v0.0.0-20190623190758-6760aca2c54e

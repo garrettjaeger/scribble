@@ -112,7 +112,7 @@ type Player struct {
 	Connected bool `json:"connected"`
 	// Rank is the current ranking of the player in his Lobby
 	LastScore int         `json:"lastScore"`
-	Rank      int         `json:"rank"`
+	Rank      int         `json:"rankMap"`
 	State     PlayerState `json:"state"`
 }
 
