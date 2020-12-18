@@ -13,10 +13,10 @@ RUN apk --no-cache add ca-certificates
 
 # runner
 FROM scratch
-#WORKDIR /app
+WORKDIR /app
 
 # For future implementation of SSL certificate support
-#COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 # Selfcontained executable used as entrypoint
 COPY --from=builder /app/scribblers /scribblers
 
